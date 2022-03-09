@@ -29,40 +29,54 @@ def upgrade():
     installation()
 
 
-### Is slice_tracker already installed? If yes get file size to compare for upgrade
-if os.path.isfile(slice_tracker_file):
-    local_file_size = int(os.path.getsize(slice_tracker_rev))
-    # print(local_file_size)
-    ### Check if update needed:
-    f = urllib.request.urlopen("https://gitlab.devtools.intel.com/ianimash/slicetrackpuller/-/raw/updates/Rev.txt") # points to the exe file for size
-    i = f.info()
-    web_file_size = int(i["Content-Length"])
-    # print(web_file_size)
+def main(autoinstall = 0):
+    ### Is slice_tracker already installed? If yes get file size to compare for upgrade
+    if os.path.isfile(slice_tracker_file):
+        local_file_size = int(os.path.getsize(slice_tracker_rev))
+        # print(local_file_size)
+        ### Check if update needed:
+        f = urllib.request.urlopen("https://gitlab.devtools.intel.com/ianimash/slicetrackpuller/-/raw/updates/Rev.txt") # points to the exe file for size
+        i = f.info()
+        web_file_size = int(i["Content-Length"])
+        # print(web_file_size)
+
+        if local_file_size != web_file_size:# upgrade available
+            if autoinstall:
+                print("*** New upgrade available! Upgrading now *** ")
+                upgrade()
+            else:
+                updt = input("*** New upgrade available! enter <y> to upgrade now, other key to skip upgrade *** ")
+                if updt == "y": # proceed to upgrade
+                    upgrade()
+                elif updt == "Y":
+                    upgrade()
+    ### slice_tracker wasn't installed, so we download and install it here                
+    else:
+        if autoinstall:
+            print("*** Installing SliceTrackPuller for the first time ***")
+            installation()
+        else:
+            install = input("Welcome to slice_tracker! If you enter <y> SliceTrackPuller will be downloaded in the same folder where this file is.\nAfter the installation, this same file you are running now (\"slice_tracker.exe\") will the one to use to open slice_tracker :)\nEnter any other key to skip the download\n -->")
+            if install == "y":
+                installation()
+            elif install == "Y":
+                installation()
+
+    print('Ready')
 
 
-    if local_file_size != web_file_size:# upgrade available
-        updt = input("*** New upgrade available! enter <y> to upgrade now, other key to skip upgrade *** ")
-        if updt == "y": # proceed to upgrade
-            upgrade()
-        elif updt == "Y":
-            upgrade()
+    ### We open the real application:
+    try:
+        Popen(slice_tracker_file)
+        print("*** Opening SliceTrackPuller ***")
+        if not autoinstall:
+            time.sleep(20)
+    except:
+        print('Failed to open application, Please open manually in subfolder')
+        pass
 
-### slice_tracker wasn't installed, so we download and install it here                
-else:
-    install = input("Welcome to slice_tracker! If you enter <y> SliceTrackPuller will be downloaded in the same folder where this file is.\nAfter the installation, this same file you are running now (\"slice_tracker.exe\") will the one to use to open slice_tracker :)\nEnter any other key to skip the download\n -->")
-    if install == "y":
-        installation()
-    elif install == "Y":
-        installation()
+def main_with_autoinstall():
+    main(autoinstall=1)
 
-print('Ready')
-
-
-### We open the real application:
-try:
-    Popen(slice_tracker_file)
-    print("*** Opening SliceTrackPuller ***")
-    time.sleep(20)
-except:
-    print('Failed to open application, Please open manually in subfolder')
-    pass
+if __name__ == "__main__":
+    main()
