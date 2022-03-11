@@ -9,6 +9,9 @@ from tkinter import Label
 from tkinter import W
 import webbrowser
 import json
+import logging
+import ctypes
+import subprocess
 
 header_path = os.getcwd();
 
@@ -24,6 +27,28 @@ def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
+
+
+def trigger_exception(message, title="EXCEPTION", uType="MB_ICONERROR", e=None):
+    if e:
+        try:
+            logger
+        except:
+            logger = logging.getLogger(__name__)
+        logger.exception(e)
+    uTypes = {
+            0: 0,
+            "MB_ICONEXCLAMATION": 0x30,
+            "MB_ICONWARNING": 0x30,
+            "MB_ICONINFORMATION": 0x40,
+            "MB_ICONASTERISK": 0x40,
+            "MB_ICONQUESTION": 0x20,
+            "MB_ICONSTOP": 0x10,
+            "MB_ICONERROR": 0x10,
+            "MB_ICONHAND": 0x10,
+            }
+    ctypes.windll.user32.MessageBoxW(0, message, title, uTypes[uType])
+
     
 def slice_tracker():    
     site = variable.get();
@@ -45,9 +70,18 @@ def slice_tracker():
         uber_script = file.read()
 
     # edit SQL
+
     uber_script = uber_script.replace('##ENG_IDS##', eng_IDs_list)# Replace the operations
     uber_script = uber_script.replace('##OPERATIONS##', operation_list )# Replace the eng_id_list
-    uber_script = uber_script.replace('##WFR_COORD##',wfr_coord )# Replace the WFR_COORD to pull historical data
+    print("wfr_coord")
+    print(wfr_coord)
+    if wfr_coord != "''":
+        print("wfr_coord")
+        print(wfr_coord)
+        uber_script = uber_script.replace("##WHERE W_X_Y##", f"WHERE Combo_W_X_Y In ({wfr_coord})")
+    else:
+        uber_script = uber_script.replace('##WHERE W_X_Y##', "")
+        
 
     with open(sql_new, 'w') as file: # Write the file out again
         file.write(uber_script)
@@ -55,8 +89,20 @@ def slice_tracker():
     conn = PiUber.connect(datasource=("%s_PROD_ARIES" % site)); ## Selecting correct site
     curr = conn.cursor();
     curr.execute(uber_script);
-    curr.to_csv(slice_raw_sql);
-    print("Slice sql pull created");
+    try:
+        curr.to_csv(slice_raw_sql);
+    except Exception as e:
+        print(e)
+        trigger_exception(f"Unable to write to file: {slice_raw_sql}\n Do you have it open in Excel?", e=e)
+        return
+    try:
+        subprocess.Popen(slice_raw_sql, shell=True)
+        print("Slice sql pull created and being opened");
+    except Exception as e:
+        print(e)
+        trigger_exception(f"Unable to open {slice_raw_sql} in Excel, contact Idriss or Harry for help", e=e)
+        return
+
 
 ### Main Root
 root = Tk()
