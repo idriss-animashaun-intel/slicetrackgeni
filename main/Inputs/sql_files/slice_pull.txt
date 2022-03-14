@@ -157,7 +157,7 @@ AND t0.test_name Like '%::%SLICETRACKING%'
 AND v0.lot In (##ENG_IDS##)
 AND v0.operation In (##OPERATIONS##)
 )
-WHERE Combo_W_X_Y In (##WFR_COORD##)
+##WHERE W_X_Y##
 )
 )
 )
