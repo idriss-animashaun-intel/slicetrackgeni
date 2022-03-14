@@ -73,8 +73,7 @@ def slice_tracker():
 
     uber_script = uber_script.replace('##ENG_IDS##', eng_IDs_list)# Replace the operations
     uber_script = uber_script.replace('##OPERATIONS##', operation_list )# Replace the eng_id_list
-    print("wfr_coord")
-    print(wfr_coord)
+
     if wfr_coord != "''":
         print("wfr_coord")
         print(wfr_coord)
@@ -106,7 +105,7 @@ def slice_tracker():
 
 ### Main Root
 root = Tk()
-root.title('SliceTrackGeni v1.00')
+root.title('SliceTrackGeni v1.10')
 
 
 mainframe = ttk.Frame(root, padding="60 50 60 50")
