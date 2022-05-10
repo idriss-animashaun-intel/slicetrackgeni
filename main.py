@@ -51,7 +51,11 @@ def trigger_exception(message, title="EXCEPTION", uType="MB_ICONERROR", e=None):
 
     
 def slice_tracker():    
-    site = variable.get();
+    if variable.get() == "D1D/D1C":
+        site = 'D1D'
+    else:
+        site = variable.get();
+
     print('site: ', site)
     sql_orig = resource_path("Inputs\\sql_files\\slice_pull.txt");
     sql_new = header_path+"\\generated_files\\slice_pull.txt";
@@ -97,6 +101,7 @@ def slice_tracker():
     try:
         subprocess.Popen(slice_raw_sql, shell=True)
         print("Slice sql pull created and being opened");
+        print('Opened results in Excel');
     except Exception as e:
         print(e)
         trigger_exception(f"Unable to open {slice_raw_sql} in Excel, contact Idriss or Harry for help", e=e)
@@ -129,7 +134,7 @@ label_2.grid(row = 1, column = 2, sticky=E)
 variable = StringVar(mainframe)
 variable.set("F28") # default value
 
-sel_prod = OptionMenu(mainframe, variable, "F28", "D1D", "D1C", "F32", "F24")
+sel_prod = OptionMenu(mainframe, variable, "F28", "D1D/D1C", "F32", "F24")
 sel_prod.grid(row = 2, column = 2, sticky=W)
 
 label_0 = Label(mainframe, text = 'Enter List of EngIDs/LotIDs: ', bg  ='black', fg = 'white')
@@ -144,7 +149,7 @@ operation = Entry(mainframe, width=40, relief = FLAT)
 operation.insert(4,'119325')
 operation.grid(row = 3, column = 1, sticky=W)
 
-label_2 = Label(mainframe, text = 'Enter List of Wafer_X_Y Coordinates: ', bg  ='black', fg = 'white')
+label_2 = Label(mainframe, text = 'Enter List of Wafer_X_Y Coordinates (Optional): ', bg  ='black', fg = 'white')
 label_2.grid(row = 4, sticky=E)
 w_coords = Entry(mainframe, width=40, relief = FLAT)
 w_coords.insert(4,'215_6_2,216_-4_0')
