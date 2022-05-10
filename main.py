@@ -50,7 +50,10 @@ def trigger_exception(message, title="EXCEPTION", uType="MB_ICONERROR", e=None):
     ctypes.windll.user32.MessageBoxW(0, message, title, uTypes[uType])
 
     
-def slice_tracker():    
+def slice_tracker():
+    
+    store_val()
+
     if variable.get() == "D1D/D1C":
         site = 'D1D'
     else:
@@ -107,6 +110,26 @@ def slice_tracker():
         trigger_exception(f"Unable to open {slice_raw_sql} in Excel, contact Idriss or Harry for help", e=e)
         return
 
+def store_val():
+    Engid = engid.get()
+    Oper = operation.get()
+    Wcoords = w_coords.get()
+    Site = variable.get()
+    store_info = [Engid,Oper,Wcoords,Site]
+
+    write_hist_file = open(hist_path, "w")
+    for i in store_info:
+        write_hist_file.write(str(i)+'\n')
+    write_hist_file.close()
+
+hist_path = resource_path("Inputs\\INFO.tmp");
+read_hist_file = open(hist_path, "r")
+
+in_Engid = read_hist_file.readline().strip('\n')
+in_Oper = read_hist_file.readline().strip('\n')
+in_Wcoords = read_hist_file.readline().strip('\n')
+in_Site = read_hist_file.readline().strip('\n')
+
 
 ### Main Root
 root = Tk()
@@ -132,27 +155,27 @@ link2.bind("<Button-1>", lambda e: callback("https://outlook.com"))
 label_2 = Label(mainframe, text = 'Select Site: ', bg  ='black', fg = 'white')
 label_2.grid(row = 1, column = 2, sticky=E)
 variable = StringVar(mainframe)
-variable.set("F28") # default value
+variable.set(in_Site) # default value
 
-sel_prod = OptionMenu(mainframe, variable, "F28", "D1D/D1C", "F32", "F24")
-sel_prod.grid(row = 2, column = 2, sticky=W)
+sel_site = OptionMenu(mainframe, variable, "F28", "D1D/D1C", "F32", "F24")
+sel_site.grid(row = 2, column = 2, sticky=W)
 
 label_0 = Label(mainframe, text = 'Enter List of EngIDs/LotIDs: ', bg  ='black', fg = 'white')
 label_0.grid(row = 2, sticky=E)
 engid = Entry(mainframe, width=40, relief = FLAT)
-engid.insert(4,'N13603801,N13601111')
+engid.insert(4,in_Engid)
 engid.grid(row = 2, column = 1, sticky=W)
 
 label_1 = Label(mainframe, text = 'Enter List of Operations: ', bg  ='black', fg = 'white')
 label_1.grid(row = 3, sticky=E)
 operation = Entry(mainframe, width=40, relief = FLAT)
-operation.insert(4,'119325')
+operation.insert(4,in_Oper)
 operation.grid(row = 3, column = 1, sticky=W)
 
 label_2 = Label(mainframe, text = 'Enter List of Wafer_X_Y Coordinates (Optional): ', bg  ='black', fg = 'white')
 label_2.grid(row = 4, sticky=E)
 w_coords = Entry(mainframe, width=40, relief = FLAT)
-w_coords.insert(4,'215_6_2,216_-4_0')
+w_coords.insert(4,in_Wcoords)
 w_coords.grid(row = 4, column = 1, sticky=W)
 
 button_0 = Button(mainframe, text="Pull Slice Tracker Result", height = 1, width = 20, command = slice_tracker, bg = 'green', fg = 'white', font = '-family "SF Espresso Shack" -size 12')
