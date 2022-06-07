@@ -7,14 +7,17 @@ from subprocess import Popen
 
 
 slice_tracker_master_directory = os.getcwd()
-slice_tracker_directory = slice_tracker_master_directory+"\slicetrackpuller-updates"
+slice_tracker_directory = slice_tracker_master_directory+"\slicetrackgeni-updates"
 slice_tracker_file = slice_tracker_directory+"\\main\\main.exe"
 slice_tracker_rev = slice_tracker_directory+"\\Rev.txt"
 
+proxy_handler = urllib.request.ProxyHandler({'https': 'http://proxy-dmz.intel.com:912'})
+opener = urllib.request.build_opener(proxy_handler)
+urllib.request.install_opener(opener)
 
 def installation():
     print("*** Downloading new version ***")
-    urllib.request.urlretrieve("https://gitlab.devtools.intel.com/ianimash/slicetrackpuller/-/archive/updates/slicetrackpuller-updates.zip", slice_tracker_master_directory+"\\slicetrackpuller_new.zip")
+    urllib.request.urlretrieve("https://github.com/idriss-animashaun-intel/slicetrackgeni/archive/refs/heads/updates.zip", slice_tracker_master_directory+"\\slicetrackpuller_new.zip")
     print("*** Extracting new version ***")
     zip_ref = zipfile.ZipFile(slice_tracker_master_directory+"\slicetrackpuller_new.zip", 'r')
     zip_ref.extractall(slice_tracker_master_directory)
@@ -35,7 +38,7 @@ def main(autoinstall = 0):
         local_file_size = int(os.path.getsize(slice_tracker_rev))
         # print(local_file_size)
         ### Check if update needed:
-        f = urllib.request.urlopen("https://gitlab.devtools.intel.com/ianimash/slicetrackpuller/-/raw/updates/Rev.txt") # points to the exe file for size
+        f = urllib.request.urlopen("https://github.com/idriss-animashaun-intel/slicetrackgeni/raw/updates/Rev.txt") # points to the exe file for size
         i = f.info()
         web_file_size = int(i["Content-Length"])
         # print(web_file_size)
